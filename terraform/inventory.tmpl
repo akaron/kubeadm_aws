@@ -1,0 +1,21 @@
+[localhost]
+127.0.0.1  ansible_connection=local
+
+[controlplane]
+cp1  ansible_host=${cp1}
+
+[controlplane:vars]
+ansible_ssh_user=ubuntu
+ansible_ssh_private_key_file=${ssh_key_file}
+clusterName=${cluster_name}
+
+[worker]
+worker1  ansible_host=${worker1}
+
+[worker:vars]
+ansible_ssh_user=ubuntu
+ansible_ssh_private_key_file=${ssh_key_file}
+
+[nodeAll:children]
+controlplane
+worker

@@ -1,0 +1,21 @@
+---
+- hosts: nodeAll
+  become: true
+  tasks:
+    - name: Reset Cluster
+      command: "{{ item }}"
+      with_items:
+        - kubeadm reset -f
+
+    - name: Reset Cluster
+      file:
+        path: /root/.kube
+        state: absent
+
+    - name: Remove local KUBECONFIG
+      become: false
+      local_action: command rm -f ./kubeconfig
+
+    - name: Remove local join-command
+      become: false
+      local_action: command rm -f join-command

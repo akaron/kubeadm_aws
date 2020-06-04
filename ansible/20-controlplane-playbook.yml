@@ -1,0 +1,38 @@
+---
+# for a single master
+- hosts: controlplane
+  become: yes
+
+  tasks:
+  # - name: Reset Cluster
+  #   command: "{{ item }}"
+  #   with_items:
+  #     - kubeadm reset -f
+  #     - rm -fr /root/.kube
+
+  - name: Copy kubeadm config to controlplane
+    template:
+      src: ./templates/aws.yml.j2
+      dest: /tmp/aws.yml
+      mode: '0644'
+
+  - name: initialize kubernetes cluster
+    command: kubeadm init --config /tmp/aws.yml --upload-certs
+
+  - name: Generate join command
+    command: kubeadm token create --print-join-command
+    register: join_command
+
+  - name: Copy join command to local file
+    become: false
+    local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
+
+  - name: Fetch admin.conf to host
+    fetch: 
+      src: /etc/kubernetes/admin.conf
+      dest: ./kubeconfig.yml
+      flat: true
+  
+  - debug: 
+      msg: "run the command in your shell before connect to the k8s cluster: export KUBECONFIG=`pwd`/kubeconfig.yml"
+    

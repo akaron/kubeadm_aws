@@ -1,0 +1,32 @@
+---
+- hosts: worker
+  become: yes
+  tasks:
+  - name: Reset Cluster
+    command: "{{ item }}"
+    with_items:
+      - kubeadm reset -f
+      - rm -fr /root/.kube
+
+  - name: Get token/endpoint/cacerthash for node-kubeadm.yml
+    local_action:
+      module: shell
+      cmd: awk '{printf "%s\n%s\n%s",$3,$5,$7}' join-command
+    register: tokenvar
+
+  - name: Get FQDN for aws hosts
+    shell: curl http://169.254.169.254/latest/meta-data/local-hostname
+    register: hostname
+
+  - name: Generate node-kubeadm.yml
+    vars:
+      - token: "{{ tokenvar.stdout_lines[1] }}"
+      - endpoint: "{{ tokenvar.stdout_lines[0] }}"
+      - cacerthash: "{{ tokenvar.stdout_lines[2] }}" 
+      - node_FQDN: "{{ hostname.stdout }}"
+    template:
+      src: ./templates/kubeadm_node_join.yml.j2
+      dest: /tmp/node-kubeadm.yml
+
+  - name: Join to cluster
+    shell: kubeadm join --config=/tmp/node-kubeadm.yml

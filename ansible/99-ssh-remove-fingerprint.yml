@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  gather_facts: no
+  become: no
+
+  tasks:
+  - name: run ssh-gen to remove ssh fingerprints from ~/.ssh/known_hosts
+    local_action: shell ssh-keygen -f ~/.ssh/known_hosts -R {{ hostvars[inventory_hostname]['ansible_host'] }}

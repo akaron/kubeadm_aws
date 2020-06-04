@@ -1,0 +1,10 @@
+*.swp
+ansible/kubeconfig.yml
+ansible/inventory
+ansible/deploy_cache/*
+ansible/join-command
+terraform/.terraform/*
+terraform/vpc/.terraform/*
+terraform/ip_address.txt
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup

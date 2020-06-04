@@ -1,0 +1,16 @@
+---
+- hosts: nodeAll
+  become: yes
+  tasks:
+  - name: set hostname to FQDN
+    block:
+    
+    - name: Get FQDN for aws hosts
+      shell: curl http://169.254.169.254/latest/meta-data/local-hostname
+      register: hostname
+
+    - debug: var={{ hostname.stdout }}
+
+    - name: update domain name
+      shell: hostnamectl set-hostname {{ hostname.stdout }}
+
