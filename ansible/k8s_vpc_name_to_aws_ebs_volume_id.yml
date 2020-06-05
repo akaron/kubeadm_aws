@@ -1,0 +1,28 @@
+---
+# usage: to check the volume id correspond to the PVC 'db-storage' provisioned by k8s cluster, run:
+# ansible-playbook -i inventory k8s_vpc_name_to_aws_ebs_volume_id.yml --extra-vars "pvcname=db-storage"
+- hosts: localhost
+  gather_facts: no
+  become: no
+  vars:
+    - aws_region: us-east-2
+
+  tasks:
+  - name: Get uid of ec2 volume test1
+    command: "kubectl get pvc {{ pvcname }} -o jsonpath='{.spec.volumeName}'"
+    environment: 
+      KUBECONFIG: ./kubeconfig.yml
+    register: ec2vol_uid
+
+  # - debug: var=ec2vol_uid
+
+  - name: filter ec2_vol by tag
+    ec2_vol_info:
+      region: "{{ aws_region }}"
+      filters:
+        "tag:kubernetes.io/created-for/pv/name": "{{ ec2vol_uid.stdout }}"
+    register: ec2vol1
+
+  - debug: var=ec2vol1.volumes[0].id
+    # TODO: return error/warning if more than one volumes
+
