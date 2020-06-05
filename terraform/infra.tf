@@ -13,8 +13,8 @@ resource "aws_instance" "cp1" {
   ami = data.aws_ami.ubuntu.id
   # ami = data.aws_ami.debian.id
   instance_type = var.instance_type_controlplane
-  # vpc_security_group_ids = ["${aws_security_group.controlplane.id}"]
-  vpc_security_group_ids = ["${aws_security_group.k8s-general.id}"]
+  vpc_security_group_ids = ["${aws_security_group.controlplane.id}"]
+  # vpc_security_group_ids = ["${aws_security_group.k8s-general.id}"]
   subnet_id = local.pubsubnet1
   key_name = aws_key_pair.quickstart_key_pair.key_name
   iam_instance_profile = aws_iam_instance_profile.controlplane.id
@@ -37,8 +37,8 @@ resource "aws_instance" "worker1" {
   ami = data.aws_ami.ubuntu.id
   # ami = data.aws_ami.debian.id
   instance_type = var.instance_type_worker
-  # vpc_security_group_ids = ["${aws_security_group.worker.id}"]
-  vpc_security_group_ids = ["${aws_security_group.k8s-general.id}"]
+  vpc_security_group_ids = ["${aws_security_group.worker.id}"]
+  # vpc_security_group_ids = ["${aws_security_group.k8s-general.id}"]
   subnet_id = local.pubsubnet1
   key_name = aws_key_pair.quickstart_key_pair.key_name
   iam_instance_profile = aws_iam_instance_profile.worker.id

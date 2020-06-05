@@ -31,6 +31,8 @@ data "aws_ami" "ubuntu" {
 
 locals {
   pubsubnet1 = module.vpc.subnet-public-1-id
+  pubsubnet2 = module.vpc.subnet-public-2-id
+  pubsubnet3 = module.vpc.subnet-public-3-id
   tag  = map(
     "kubernetes.io/cluster/${var.cluster_name}", "owned"
   )
