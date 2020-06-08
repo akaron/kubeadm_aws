@@ -1,6 +1,6 @@
 ---
 # for a single master
-- hosts: controlplane
+- hosts: cp1
   become: yes
 
   tasks:
@@ -23,9 +23,17 @@
     command: kubeadm token create --print-join-command
     register: join_command
 
-  - name: Copy join command to local file
+  - name: copy join command to local file
     become: false
     local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
+
+  - name: Get the certificate for other controlplane (cert valid for 2 hours)
+    command: kubeadm init phase upload-certs --upload-certs
+    register: join_cert
+
+  - name: copy certificate to local file
+    become: false
+    local_action: copy content="{{ join_cert.stdout_lines[2] }}" dest="./join-cert"
 
   - name: Fetch admin.conf to host
     fetch: 

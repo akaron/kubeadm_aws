@@ -1,0 +1,40 @@
+---
+- hosts: controlplane:!cp1
+  become: yes
+  vars:
+  - certificate: "{{ lookup('file', './join-cert') }}" 
+
+  tasks:
+  # - name: Reset Cluster
+  #   command: "{{ item }}"
+  #   with_items:
+  #     - kubeadm reset -f
+  #     - rm -fr /root/.kube
+
+  - name: Get token/endpoint/cacerthash for node-kubeadm.yml
+    local_action:
+      module: shell
+      cmd: awk '{printf "%s\n%s\n%s",$3,$5,$7}' join-command
+    register: tokenvar
+
+  - name: Get FQDN for aws hosts
+    shell: curl http://169.254.169.254/latest/meta-data/local-hostname
+    register: FQDN
+
+  - name: Get private ip for aws hosts
+    shell: curl http://169.254.169.254/latest/meta-data/local-ipv4
+    register: ipv4
+
+  - name: Generate join-kubeadm.yml
+    vars:
+      - token: "{{ tokenvar.stdout_lines[1] }}"
+      - endpoint: "{{ tokenvar.stdout_lines[0] }}"
+      - cacerthash: "{{ tokenvar.stdout_lines[2] }}" 
+      - node_FQDN: "{{ FQDN.stdout_lines[0] }}"
+      - node_ipv4: "{{ ipv4.stdout_lines[0] }}"
+    template:
+      src: ./templates/kubeadm_cp_join.yml.j2
+      dest: /tmp/join-kubeadm.yml
+
+  - name: Join to cluster
+    shell: kubeadm join --config=/tmp/join-kubeadm.yml

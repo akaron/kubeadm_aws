@@ -23,3 +23,8 @@
       apply: yes
       src: ./deploy_cache/nginx-ingress-controller-0_32_0.yaml
       kubeconfig: ./kubeconfig.yml
+
+  - debug:
+      msg:
+      - "Please wait a few minutes for AWS to generate an Network Load Balancer (NLB),"
+      - "if you want to generate an Ingress resource."

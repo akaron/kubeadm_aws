@@ -218,16 +218,6 @@ resource "aws_security_group_rule" "worker-nodeport-from-all" {
   # cidr_blocks = ["${var.myip_cidr}"]
   }
 
-# resource "aws_security_group_rule" "worker-ingress-from-all" {
-#   type        = "ingress"
-#   from_port   = "8443"
-#   to_port     = "8443"
-#   protocol    = "tcp"
-#   security_group_id = aws_security_group.worker.id
-#   source_security_group_id = aws_security_group.controlplane.id
-#   description = "for nginx ingress controller"
-# }
-  
 resource "aws_security_group_rule" "worker-egress" {
   type              = "egress"
   from_port         = 0

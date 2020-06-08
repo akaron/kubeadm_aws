@@ -1,6 +1,6 @@
 ---
-# for a single master
-- hosts: controlplane
+# probably faster to run on localhost
+- hosts: cp1
   become: yes
 
   tasks:
