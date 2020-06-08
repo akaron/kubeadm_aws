@@ -3,6 +3,7 @@ ansible/kubeconfig.yml
 ansible/inventory
 ansible/deploy_cache/*
 ansible/join-command
+ansible/join-cert
 terraform/.terraform/*
 terraform/vpc/.terraform/*
 terraform/ip_address.txt
