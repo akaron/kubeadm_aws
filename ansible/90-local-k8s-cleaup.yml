@@ -1,0 +1,44 @@
+---
+- hosts: localhost
+  gather_facts: no
+  become: no
+  vars_files:
+    - vars/main.yml
+
+  tasks:
+  - name: Delete standard storageClass
+    k8s:
+      state: absent
+      definition:
+        kind: StorageClass
+        apiVersion: storage.k8s.io/v1beta1
+        metadata:
+          name: standard
+        provisioner: kubernetes.io/aws-ebs
+        parameters:
+          type: gp2
+      kubeconfig: ./kubeconfig.yml
+
+  - name: Delete standard storageClass for first AZ
+    k8s:
+      state: absent
+      definition:
+        kind: StorageClass
+        apiVersion: storage.k8s.io/v1beta1
+        metadata:
+          name: standard-a
+        provisioner: kubernetes.io/aws-ebs
+        parameters:
+          type: gp2
+        allowedTopologies:
+        - matchLabelExpressions:
+          - key: failure-domain.beta.kubernetes.io/zone
+            values:
+            - "{{ aws_region }}a"
+      kubeconfig: ./kubeconfig.yml
+
+  - name: Delete ingress-nginx controller
+    k8s:
+      state: absent
+      src: ./deploy_cache/nginx-ingress-controller-0_32_0.yaml
+      kubeconfig: ./kubeconfig.yml
