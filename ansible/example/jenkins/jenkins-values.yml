@@ -1,0 +1,29 @@
+# use existing PV and PVC: follow instructions here to create PV and PVC in rancher
+# https://rancher.com/docs/rancher/v2.x/en/cluster-admin/volumes-and-storage/attaching-existing-storage/
+# First create a PVC in zone a
+# > kubectl create -f pv-claim.yml
+#
+# Then run this helm script (update the arguments of this file)
+# helm install myjenkins -f ./jenkins-values.yml --set persistence.storageClass=standard-a stable/jenkins
+#
+# Note:
+# * In aws, the PVC and the node may locate in different availible zones (AZs). Need to make
+#   them in same AZ otherwise cannot mount the aws EBS. Possible solutions: use node affinity,
+#   create multiple PVCs, ...
+#
+master:
+  runAsUser: 1000
+  fsGroup: 1000
+  clusterZone: jenkins.k8s.optract.space
+  ingress:
+    Annotations:
+      kubernetes.io/ingress.class: "nginx"
+      kubernetes.io/ingress.allow-http: "false"
+    enabled: true
+    hostName: jenkins.k8s.optract.space
+    TLS:
+      - hosts: jenkins.k8s.optract.space
+        secretName:
+  nodeSelector:
+    topology.kubernetes.io/zone: us-east-2a
+

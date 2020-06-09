@@ -21,9 +21,9 @@ resource "aws_autoscaling_group" "worker" {
   depends_on = [aws_lb_target_group.apiserver]
   enabled_metrics      = ["GroupDesiredCapacity", "GroupInServiceInstances", "GroupMaxSize", "GroupMinSize", "GroupPendingInstances", "GroupStandbyInstances", "GroupTerminatingInstances", "GroupTotalInstances"]
   launch_configuration = aws_launch_configuration.worker.id
-  max_size             = 1
+  max_size             = 3
   metrics_granularity  = "1Minute"
-  min_size             = 1
+  min_size             = 3
   name                 = "worker"
   vpc_zone_identifier  = [local.pubsubnet1, local.pubsubnet2, local.pubsubnet3]
   tag {

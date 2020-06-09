@@ -18,4 +18,4 @@
 
     - name: Remove local join-command
       become: false
-      local_action: command rm -f join-command
+      local_action: command rm -f join-command join-cert

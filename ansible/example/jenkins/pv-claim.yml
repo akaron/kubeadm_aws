@@ -1,12 +1,12 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: jenkins-data
+  name: jenkins-home
   annotations:
-    volume.beta.kubernetes.io/storage-class: "standard"
+    volume.beta.kubernetes.io/storage-class: "standard-a"
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 14Gi
+      storage: 13Gi

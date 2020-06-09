@@ -12,6 +12,7 @@
   #     - kubeadm reset -f
   #     - rm -fr /root/.kube
 
+  # TODO: update the join-command, the fields may not reliable if kubeadm updates
   - name: Get token/endpoint/cacerthash for node-kubeadm.yml
     local_action:
       module: shell

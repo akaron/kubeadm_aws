@@ -2,6 +2,8 @@
 - hosts: localhost
   gather_facts: no
   become: no
+  vars_files:
+    - vars/main.yml
 
   tasks:
   - name: Install calico CNI
@@ -14,12 +16,38 @@
     # command: kubectl create -f https://raw.githubusercontent.com/cilium/cilium/v1.6/install/kubernetes/quick-install.yaml
     # command: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 
-  - name: Initialize standard storageClass
-    local_action:
-      module: command
-      cmd: kubectl apply -f ./templates/storageClass-gp2.yml
-    environment:
-      KUBECONFIG: ./kubeconfig.yml
+  - name: Deploy standard storageClass
+    k8s:
+      state: present
+      definition:
+        kind: StorageClass
+        apiVersion: storage.k8s.io/v1beta1
+        metadata:
+          name: standard
+        provisioner: kubernetes.io/aws-ebs
+        parameters:
+          type: gp2
+      apply: yes
+      kubeconfig: ./kubeconfig.yml
+
+  - name: Deploy standard storageClass for first AZ
+    k8s:
+      state: present
+      definition:
+        kind: StorageClass
+        apiVersion: storage.k8s.io/v1beta1
+        metadata:
+          name: standard-a
+        provisioner: kubernetes.io/aws-ebs
+        parameters:
+          type: gp2
+        allowedTopologies:
+        - matchLabelExpressions:
+          - key: failure-domain.beta.kubernetes.io/zone
+            values:
+            - "{{ aws_region }}a"
+      apply: yes
+      kubeconfig: ./kubeconfig.yml
 
   - name: Install ingress-nginx controller
     block:
@@ -42,5 +70,5 @@
 
     - debug:
         msg:
-        - "Please wait a few minutes for AWS to generate an Network Load Balancer (NLB),"
-        - "if you want to generate an Ingress resource."
+        - "Please wait a few minutes for AWS to generate an Network Load Balancer (NLB)"
+        - "before you start using the Ingress resources."
