@@ -18,6 +18,7 @@ resource "local_file" "vars" {
   # depends_on = [aws_autoscaling_group.controlplane, aws_autoscaling_group.worker]
   content = templatefile("vars-main.tmpl", {
     aws_region = var.aws_region
+    efs_mount_target_dns_name = aws_efs_mount_target.wordpress.dns_name
   })
   filename = "../ansible/vars/main.yml"
   file_permission = "0644"

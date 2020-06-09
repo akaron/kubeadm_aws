@@ -2,7 +2,7 @@
 - hosts: nodeAll
   become: yes
   tasks:
-  - name: Install packages that allow apt to be used over HTTPS
+  - name: Install packages for apt used over HTTPS and ntp and nfs
     apt:
       name: "{{ packages }}"
       state: present
@@ -15,6 +15,7 @@
       - gnupg-agent
       - software-properties-common
       - ntp
+      - nfs-common
 
   - name: Add apt signing keys for Docker and kubeadm/kubectl/kubelet
     apt_key:

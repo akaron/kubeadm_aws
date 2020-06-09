@@ -1,6 +1,7 @@
 *.swp
 ansible/kubeconfig.yml
 ansible/inventory
+ansible/vars/main.yml
 ansible/deploy_cache/*
 ansible/join-command
 ansible/join-cert
