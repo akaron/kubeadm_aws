@@ -4,8 +4,10 @@ ansible/inventory
 ansible/deploy_cache/*
 ansible/join-command
 ansible/join-cert
+ansible/old/*
 terraform/.terraform/*
 terraform/vpc/.terraform/*
 terraform/ip_address.txt
 terraform/terraform.tfstate
 terraform/terraform.tfstate.backup
+terraform/old/*

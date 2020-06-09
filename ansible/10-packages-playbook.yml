@@ -18,7 +18,7 @@
 
   - name: Add apt signing keys for Docker and kubeadm/kubectl/kubelet
     apt_key:
-      url: "{{ item  }}"
+      url: "{{ item }}"
       state: present
     with_items:
       - "https://download.docker.com/linux/ubuntu/gpg"

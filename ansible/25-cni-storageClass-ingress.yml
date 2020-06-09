@@ -1,0 +1,46 @@
+---
+- hosts: localhost
+  gather_facts: no
+  become: no
+
+  tasks:
+  - name: Install calico CNI
+    command: kubectl apply -f https://docs.projectcalico.org/v3.14/manifests/calico.yaml
+    environment:
+      KUBECONFIG: ./kubeconfig.yml
+
+    # For other CNI (may need to change the podSubnet in `templates/aws.yml.j2`)
+    # shell: kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+    # command: kubectl create -f https://raw.githubusercontent.com/cilium/cilium/v1.6/install/kubernetes/quick-install.yaml
+    # command: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+  - name: Initialize standard storageClass
+    local_action:
+      module: command
+      cmd: kubectl apply -f ./templates/storageClass-gp2.yml
+    environment:
+      KUBECONFIG: ./kubeconfig.yml
+
+  - name: Install ingress-nginx controller
+    block:
+    - name: mkdir cache folder for definition file
+      file:
+        path: ./deploy_cache
+        state: directory
+
+    - name: Get ingress-nginx controller definition
+      get_url:
+        url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-0.32.0/deploy/static/provider/aws/deploy.yaml
+        dest: ./deploy_cache/nginx-ingress-controller-0_32_0.yaml
+        mode: '0644'
+
+    - name: Deploy Ingress Controller
+      k8s:
+        apply: yes
+        src: ./deploy_cache/nginx-ingress-controller-0_32_0.yaml
+        kubeconfig: ./kubeconfig.yml
+
+    - debug:
+        msg:
+        - "Please wait a few minutes for AWS to generate an Network Load Balancer (NLB),"
+        - "if you want to generate an Ingress resource."

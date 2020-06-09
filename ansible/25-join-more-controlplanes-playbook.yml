@@ -3,6 +3,7 @@
   become: yes
   vars:
   - certificate: "{{ lookup('file', './join-cert') }}" 
+  - kubeadm_config_dest: "/tmp/join-kubeadm.yml"
 
   tasks:
   # - name: Reset Cluster
@@ -18,23 +19,29 @@
     register: tokenvar
 
   - name: Get FQDN for aws hosts
-    shell: curl http://169.254.169.254/latest/meta-data/local-hostname
+    uri:
+      url: http://169.254.169.254/latest/meta-data/local-hostname
+      return_content: yes
     register: FQDN
+    failed_when: FQDN.status != 200
 
   - name: Get private ip for aws hosts
-    shell: curl http://169.254.169.254/latest/meta-data/local-ipv4
+    uri:
+      url: http://169.254.169.254/latest/meta-data/local-ipv4
+      return_content: yes
     register: ipv4
+    failed_when: ipv4.status != 200
 
-  - name: Generate join-kubeadm.yml
+  - name: Generate kubeadm join config
     vars:
       - token: "{{ tokenvar.stdout_lines[1] }}"
       - endpoint: "{{ tokenvar.stdout_lines[0] }}"
       - cacerthash: "{{ tokenvar.stdout_lines[2] }}" 
-      - node_FQDN: "{{ FQDN.stdout_lines[0] }}"
-      - node_ipv4: "{{ ipv4.stdout_lines[0] }}"
+      - node_FQDN: "{{ FQDN.content }}"
+      - node_ipv4: "{{ ipv4.content }}"
     template:
       src: ./templates/kubeadm_cp_join.yml.j2
-      dest: /tmp/join-kubeadm.yml
+      dest: "{{ kubeadm_config_dest }}"
 
-  - name: Join to cluster
-    shell: kubeadm join --config=/tmp/join-kubeadm.yml
+  - name: Join cluster
+    shell: kubeadm join --config="{{ kubeadm_config_dest }}"

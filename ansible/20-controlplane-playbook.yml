@@ -1,7 +1,9 @@
 ---
-# for a single master
+# for the first master
 - hosts: cp1
   become: yes
+  vars:
+  - kubeadm_config_dest: "/tmp/aws.yml"
 
   tasks:
   # - name: Reset Cluster
@@ -13,11 +15,11 @@
   - name: Copy kubeadm config to controlplane
     template:
       src: ./templates/aws.yml.j2
-      dest: /tmp/aws.yml
+      dest: "{{ kubeadm_config_dest }}"
       mode: '0644'
 
-  - name: initialize kubernetes cluster
-    command: kubeadm init --config /tmp/aws.yml --upload-certs
+  - name: Initialize kubernetes cluster using the kubeadm config
+    command: kubeadm init --config {{ kubeadm_config_dest }} --upload-certs
 
   - name: Generate join command
     command: kubeadm token create --print-join-command
@@ -42,5 +44,5 @@
       flat: true
   
   - debug: 
-      msg: "run the command in your shell before connect to the k8s cluster: export KUBECONFIG=`pwd`/kubeconfig.yml"
+      msg: "run the command in your shell to connect to the k8s cluster: export KUBECONFIG=`pwd`/kubeconfig.yml"
     
