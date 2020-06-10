@@ -1,7 +1,11 @@
-First need to update the mount point of EFS in wordpress-web.yml.
-(will use terraform or ansible template to do that)
+First need to generate aws EFS.
 
-Them, roughly follow this order 
+Copy the `efs.tf` to `../../../terraform`, then run `terraform apply` there.  The output
+of the script include the EFS mount point (the dns name). The name also export to
+`../../vars/wp.yml`. Replace the value to the nsf server in `wordpress-web.yml` (in the
+last few lines).
+
+Then, roughly follow this order to deploy in k8s cluster:
 ```
 kubectl create -f pv-claim.yml
 kubectl create -f wordpress-secrets.yml
