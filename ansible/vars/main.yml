@@ -1,4 +1,0 @@
----
-
-aws_region: "us-east-2"
-efs_mount_target_dns_name: "fs-3f5d8647.efs.us-east-2.amazonaws.com"
