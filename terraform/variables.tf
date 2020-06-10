@@ -47,10 +47,16 @@ variable "instance_type_worker" {
   default     = "t3a.medium"
 }
 
-variable "volume_size" {
+variable "volume_size_controlplane" {
   type        = string
-  description = "root volume size used for all EC2 instances; at least 8GB"
-  default     = "8"  # GiB
+  description = "root volume size used for all controlplane nodes; at least 8GB"
+  default     = "10"  # GiB
+}
+
+variable "volume_size_worker" {
+  type        = string
+  description = "root volume size used for all worker nodes; at least 8GB"
+  default     = "10"  # GiB
 }
 
 variable "route53_hosted_zone" {

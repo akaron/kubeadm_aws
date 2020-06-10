@@ -2,8 +2,6 @@ resource "local_file" "inventory" {
   # depends_on = [aws_autoscaling_group.controlplane, aws_autoscaling_group.worker]
   content = templatefile("inventory.tmpl", {
     cp1 = data.aws_instances.controlplane.public_ips[0]
-    cp2 = data.aws_instances.controlplane.public_ips[1]
-    cp3 = data.aws_instances.controlplane.public_ips[2]
     worker1 = data.aws_instances.worker.public_ips[0]
     worker2 = data.aws_instances.worker.public_ips[1]
     worker3 = data.aws_instances.worker.public_ips[2]

@@ -12,7 +12,7 @@ resource "aws_launch_configuration" "worker" {
   name_prefix = "asg-worker"
   root_block_device {
     delete_on_termination = true
-    volume_size           = 11
+    volume_size           = var.volume_size_worker
     volume_type           = "gp2"
   }
 }

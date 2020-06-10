@@ -70,5 +70,5 @@
 
     - debug:
         msg:
-        - "Please wait a few minutes for AWS to generate an Network Load Balancer (NLB)"
-        - "before you start using the Ingress resources."
+        - "* Please wait a few minutes for AWS to generate a Network Load Balancer (NLB)"
+        - "* By default the ingress-nginx controller is deployed in a worker-node"

@@ -12,7 +12,7 @@ resource "aws_launch_configuration" "controlplane" {
   name_prefix = "asg-controlplane"
   root_block_device {
     delete_on_termination = true
-    volume_size           = 11
+    volume_size           = var.volume_size_controlplane
     volume_type           = "gp2"
   }
 }
@@ -21,9 +21,9 @@ resource "aws_autoscaling_group" "controlplane" {
   depends_on = [aws_lb_target_group.apiserver]
   enabled_metrics      = ["GroupDesiredCapacity", "GroupInServiceInstances", "GroupMaxSize", "GroupMinSize", "GroupPendingInstances", "GroupStandbyInstances", "GroupTerminatingInstances", "GroupTotalInstances"]
   launch_configuration = aws_launch_configuration.controlplane.id
-  max_size             = 3
+  max_size             = 1
   metrics_granularity  = "1Minute"
-  min_size             = 3
+  min_size             = 1
   name                 = "controlplane"
   vpc_zone_identifier  = [local.pubsubnet1, local.pubsubnet2, local.pubsubnet3]
   target_group_arns    = [aws_lb_target_group.apiserver.arn]
