@@ -6,6 +6,7 @@ resource "aws_launch_configuration" "controlplane" {
   instance_type               = var.instance_type_controlplane
   security_groups             = ["${aws_security_group.controlplane.id}"]
   key_name                    = aws_key_pair.quickstart_key_pair.id
+  user_data = data.template_cloudinit_config.k8s_all.rendered
   lifecycle {
     create_before_destroy = true
   }
@@ -20,6 +21,8 @@ resource "aws_launch_configuration" "controlplane" {
 resource "aws_autoscaling_group" "controlplane" {
   depends_on = [aws_lb_target_group.apiserver]
   enabled_metrics      = ["GroupDesiredCapacity", "GroupInServiceInstances", "GroupMaxSize", "GroupMinSize", "GroupPendingInstances", "GroupStandbyInstances", "GroupTerminatingInstances", "GroupTotalInstances"]
+  # health_check_type    = "ELB"  # Can NLB or ALB use ELB health check type?
+  # health_check_grace_period = 300
   launch_configuration = aws_launch_configuration.controlplane.id
   max_size             = 1
   metrics_granularity  = "1Minute"

@@ -6,6 +6,7 @@ resource "aws_launch_configuration" "worker" {
   instance_type               = var.instance_type_worker
   security_groups             = ["${aws_security_group.worker.id}"]
   key_name                    = aws_key_pair.quickstart_key_pair.id
+  user_data = data.template_cloudinit_config.k8s_all.rendered
   lifecycle {
     create_before_destroy = true
   }
@@ -17,9 +18,12 @@ resource "aws_launch_configuration" "worker" {
   }
 }
 
+# TODO: add "aws_autoscaling_policy" and "aws_cloudwatch_metric_alarm" to scale up or down
 resource "aws_autoscaling_group" "worker" {
   depends_on = [aws_lb_target_group.apiserver]
   enabled_metrics      = ["GroupDesiredCapacity", "GroupInServiceInstances", "GroupMaxSize", "GroupMinSize", "GroupPendingInstances", "GroupStandbyInstances", "GroupTerminatingInstances", "GroupTotalInstances"]
+  # health_check_type    = "ELB"
+  # health_check_grace_period = 300
   launch_configuration = aws_launch_configuration.worker.id
   max_size             = 3
   metrics_granularity  = "1Minute"

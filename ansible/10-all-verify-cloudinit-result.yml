@@ -1,0 +1,10 @@
+---
+- hosts: nodeAll
+  become: yes
+  tasks:
+  - name: verify cloud-init result
+    command: >
+      grep
+      "net.bridge.bridge-nf-call-iptables = 1"
+      /etc/sysctl.d/k8s.conf
+    changed_when: False

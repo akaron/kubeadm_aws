@@ -7,6 +7,7 @@ ansible/join-command
 ansible/join-cert
 ansible/old/*
 terraform/.terraform/*
+terraform/terraform.tfvars
 terraform/vpc/.terraform/*
 terraform/ip_address.txt
 terraform/terraform.tfstate
