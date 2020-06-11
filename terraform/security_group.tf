@@ -17,6 +17,10 @@ resource "aws_security_group" "controlplane" {
   )
 }
 
+# TODO: make ec2 instance more secure
+#   1. add a security group for NLB, which allow 80 and 443 from 0.0.0.0/0
+#   2. allow 443 to only (1)controlplanes; (2)workers; (3)NLB
+#   3. don't assign public ip for master and worker!
 resource "aws_security_group_rule" "master-443-for-all" {
   type              = "ingress"
   from_port         = 443
