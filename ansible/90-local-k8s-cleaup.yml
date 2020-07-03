@@ -48,3 +48,4 @@
   #   command: kubectl delete pvc --all 
   #   environment:
   #     KUBECONFIG: ./kubeconfig.yml
+  #  note: test this argument:   --ignore-not-found=true
