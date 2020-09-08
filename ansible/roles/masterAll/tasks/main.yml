@@ -1,0 +1,35 @@
+---
+# tasks file for masterAll
+- name: Get token/endpoint/cacerthash for node-kubeadm.yml
+  local_action:
+    module: shell
+    cmd: awk '{printf "%s\n%s\n%s",$3,$5,$7}' join-command
+  register: tokenvar
+
+- name: Get FQDN for aws hosts
+  uri:
+    url: http://169.254.169.254/latest/meta-data/local-hostname
+    return_content: yes
+  register: FQDN
+  failed_when: FQDN.status != 200
+
+- name: Get private ip for aws hosts
+  uri:
+    url: http://169.254.169.254/latest/meta-data/local-ipv4
+    return_content: yes
+  register: ipv4
+  failed_when: ipv4.status != 200
+
+- name: Generate kubeadm join config
+  vars:
+    - token: "{{ tokenvar.stdout_lines[1] }}"
+    - endpoint: "{{ tokenvar.stdout_lines[0] }}"
+    - cacerthash: "{{ tokenvar.stdout_lines[2] }}" 
+    - node_FQDN: "{{ FQDN.content }}"
+    - node_ipv4: "{{ ipv4.content }}"
+  template:
+    src: kubeadm_cp_join.yml.j2
+    dest: "{{ kubeadm_config_dest }}"
+
+- name: Join cluster
+  shell: kubeadm join --config="{{ kubeadm_config_dest }}"

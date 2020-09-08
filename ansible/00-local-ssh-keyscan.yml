@@ -1,8 +1,0 @@
----
-- hosts: nodeAll
-  gather_facts: no
-  become: no
-
-  tasks:
-  - name: run ssh-keyscan to add keys to known_hosts
-    local_action: shell ssh-keyscan -H {{ hostvars[inventory_hostname]['ansible_host'] }} >> ~/.ssh/known_hosts

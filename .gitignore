@@ -13,3 +13,7 @@ terraform/ip_address.txt
 terraform/terraform.tfstate
 terraform/terraform.tfstate.backup
 terraform/old/*
+.travis.yml
+.vagrant/*
+*.retry
+*.log

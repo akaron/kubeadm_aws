@@ -45,7 +45,7 @@
 
   # # note: may not always want to delete all PVC
   # - name: Delete all PVC
-  #   command: kubectl delete pvc --all 
+  #   command: kubectl delete pvc --all
   #   environment:
   #     KUBECONFIG: ./kubeconfig.yml
   #  note: test this argument:   --ignore-not-found=true

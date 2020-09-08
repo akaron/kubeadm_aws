@@ -126,17 +126,17 @@ resource "aws_route_table_association" "myvpc-public-3-a" {
 }
 
 # dhcp options
-resource "aws_vpc_dhcp_options_association" "k8s-optract-space" {
-  dhcp_options_id = aws_vpc_dhcp_options.k8s-optract-space.id
-  vpc_id          = aws_vpc.myvpc.id
-}
-
-resource "aws_vpc_dhcp_options" "k8s-optract-space" {
+resource "aws_vpc_dhcp_options" "k8s" {
   domain_name         = "${var.AWS_REGION}.compute.internal"
   domain_name_servers = ["AmazonProvidedDNS"]
   tags = merge(
     local.tag,
-    map("Name", "k8s.optract.space")
+    map("Name", var.route53_hosted_zone)
   )
+}
+
+resource "aws_vpc_dhcp_options_association" "k8s" {
+  dhcp_options_id = aws_vpc_dhcp_options.k8s.id
+  vpc_id          = aws_vpc.myvpc.id
 }
 

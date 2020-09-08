@@ -1,0 +1,14 @@
+---
+- hosts: controlplane:!cp1
+  become: yes
+  vars:
+
+  tasks:
+  - name: join other master nodes if exists
+    import_role:
+      name: masterAll
+    vars:
+    - certificate: "{{ lookup('file', './join-cert') }}"
+    - kubeadm_config_dest: "/tmp/join-kubeadm.yml"
+
+  # TODO: update the join-command, the fields may not reliable if kubeadm updates

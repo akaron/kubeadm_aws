@@ -6,16 +6,25 @@
       command: "{{ item }}"
       with_items:
         - kubeadm reset -f
+      changed_when: True
 
     - name: Reset Cluster
       file:
         path: /root/.kube
         state: absent
 
-    - name: Remove local KUBECONFIG
-      become: false
-      local_action: command rm -f ./kubeconfig
+    # - name: Remove local KUBECONFIG
+    #   become: false
+    #   local_action: command rm -f ./kubeconfig
 
-    - name: Remove local join-command
+    - name: Remove files in local
       become: false
-      local_action: command rm -f join-command join-cert
+      # local_action: command rm -f join-command join-cert
+      local_action:
+        module: file
+        state: absent
+        path: "{{ item }}"
+        with_items:
+          - kubeconfig
+          - join-cert
+          - join-command

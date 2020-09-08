@@ -1,0 +1,11 @@
+---
+# for the first master
+- hosts: cp1
+  become: yes
+
+  tasks:
+  - name: prepare first master node
+    import_role:
+      name: master1
+    vars:
+    - kubeadm_config_dest: "/tmp/kubeadm-init.yml"

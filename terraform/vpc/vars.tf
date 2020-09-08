@@ -12,6 +12,10 @@ variable "cluster_name" {
   type = string
 }
 
+variable "route53_hosted_zone" {
+  type = string
+}
+
 locals {
   aza  = "${var.AWS_REGION}a"
   azb  = "${var.AWS_REGION}b"

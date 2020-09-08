@@ -1,0 +1,27 @@
+---
+# tasks file for local
+- name: Install kubectl
+  get_url:
+    url: https://storage.googleapis.com/kubernetes-release/release/v1.18.3/bin/linux/amd64/kubectl
+    dest: /usr/local/bin/kubectl
+    mode: '0755'
+
+- name: Get helm
+  get_url:
+    url: https://get.helm.sh/helm-v3.2.4-linux-amd64.tar.gz
+    dest: /tmp/
+    checksum: "sha256:8eb56cbb7d0da6b73cd8884c6607982d0be8087027b8ded01d6b2759a72e34b1"
+
+- name: unarchive helm
+  unarchive:
+    remote_src: yes
+    src: /tmp/helm-v3.2.4-linux-amd64.tar.gz
+    dest: /tmp
+
+- name: move helm binaries to PATH
+  become: yes
+  copy:
+    remote_src: yes
+    src: /tmp/linux-amd64/helm 
+    dest: /usr/local/bin/helm
+    mode: "0755"

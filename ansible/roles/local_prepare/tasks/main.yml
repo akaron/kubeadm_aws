@@ -1,0 +1,5 @@
+---
+# tasks file for local_prepare
+- name: run ssh-keyscan to add keys to known_hosts
+  local_action: shell ssh-keyscan -H {{ hostvars[inventory_hostname]['ansible_host'] }} >> ~/.ssh/known_hosts
+

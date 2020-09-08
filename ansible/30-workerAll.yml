@@ -1,0 +1,7 @@
+---
+- hosts: worker
+  become: yes
+  tasks:
+  - name: Join worker nodes
+    import_role:
+      name: workerAll
