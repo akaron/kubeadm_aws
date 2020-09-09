@@ -30,6 +30,3 @@
     src: /etc/kubernetes/admin.conf
     dest: ./kubeconfig.yml
     flat: true
-
-- debug: 
-    msg: "run the command in your shell to connect to the k8s cluster: export KUBECONFIG=`pwd`/kubeconfig.yml"
