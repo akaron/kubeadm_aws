@@ -25,9 +25,9 @@ resource "aws_autoscaling_group" "worker" {
   # health_check_type    = "ELB"
   # health_check_grace_period = 300
   launch_configuration = aws_launch_configuration.worker.id
-  max_size             = 3
+  max_size             = 1
   metrics_granularity  = "1Minute"
-  min_size             = 3
+  min_size             = 1
   name                 = "worker"
   vpc_zone_identifier  = [local.pubsubnet1, local.pubsubnet2, local.pubsubnet3]
   tag {

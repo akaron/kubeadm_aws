@@ -3,7 +3,7 @@
 - name: Install calico CNI
   command: kubectl apply -f https://docs.projectcalico.org/v3.14/manifests/calico.yaml
   environment:
-    KUBECONFIG: ./kubeconfig.yml
+    KUBECONFIG: /vagrant/ansible/kubeconfig.yml
 
   # For other CNI (may need to change the podSubnet in `templates/aws.yml.j2`)
   # shell: kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
@@ -22,7 +22,6 @@
       parameters:
         type: gp2
     apply: yes
-    kubeconfig: ./kubeconfig.yml
 
 - name: Deploy standard storageClass for first AZ
   k8s:
@@ -41,7 +40,6 @@
           values:
           - "{{ aws_region }}a"
     apply: yes
-    kubeconfig: ./kubeconfig.yml
 
 - name: Install ingress-nginx controller
   block:
@@ -60,7 +58,6 @@
     k8s:
       apply: yes
       src: ./deploy_cache/nginx-ingress-controller-0_32_0.yaml
-      kubeconfig: ./kubeconfig.yml
 
   - debug:
       msg:

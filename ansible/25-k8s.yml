@@ -6,6 +6,6 @@
   tasks:
   - name: Install CNI/StorageClass/LoadBalancer
     import_role:
-      name: master1
+      name: k8s
     vars:
       - aws_region: us-east-2
