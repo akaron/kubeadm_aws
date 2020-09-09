@@ -10,6 +10,8 @@ myip_cidr = ""
 route53_hosted_zone = ""  # assume the hosted_zone already created (dont forget the '.' in the end)
 # cluster_name = "myCluster"
 
+interpreter_python = "/usr/bin/python3"
+
 # Prefix for most resources
 # prefix = "quickstart"
 

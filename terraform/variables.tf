@@ -70,6 +70,11 @@ variable "myip_cidr" {
   description = "EC2 instances allow connections of some ports from this IP (ex: 1.2.3.4/32)"
 }
 
+variable "interpreter_python" {
+  type        = string
+  description = "interpreter of python for ansible"
+}
+
 
 # Local variables used to reduce repetition
 locals {
