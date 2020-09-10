@@ -1,0 +1,35 @@
+alertmanager:
+  enabled: true
+  persistentVolume:
+    enabled: true
+    mountPath: /data/prometheus-data
+    existingClaim: "prometheus-pvc"
+  securityContext:
+    runAsUser: 1000
+    runAsNonRoot: true
+    runAsGroup: 1000
+    fsGroup: 1000
+
+
+server:
+  persistentVolume:
+    enabled: true
+    existingClaim: "prometheus-pvc"
+    mountPath: /data/prometheus-data
+  securityContext:
+    runAsUser: 1000
+    runAsNonRoot: true
+    runAsGroup: 1000
+    fsGroup: 1000
+
+nodeExporter:
+  tolerations:
+    - key: "node-role.kubernetes.io/master"
+      effect: "NoSchedule"
+  securityContext:
+    runAsUser: 1000
+
+pushgateway:
+  securityContext:
+    runAsUser: 1000
+    runAsNonRoot: true

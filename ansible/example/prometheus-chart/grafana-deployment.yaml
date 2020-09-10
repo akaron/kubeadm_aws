@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: grafana
+  name: grafana
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - image: grafana/grafana
+        imagePullPolicy: Always
+        name: grafana
+        volumeMounts:
+          - name: provision-datasource-prometheus
+            mountPath: /etc/grafana/provisioning/datasources
+          - name: provision-dashboards
+            mountPath: /etc/grafana/provisioning/dashboards
+          - name: dashboards-node-dashboard
+            mountPath: /var/lib/grafana/dashboards
+      volumes:
+        - name: provision-datasource-prometheus
+          configMap:
+            name: grafana-provision
+            items:
+              - key: datasource-prometheus
+                path: datasource-prometheus.yaml
+            defaultMode: 0644
+        - name: provision-dashboards
+          configMap:
+            name: grafana-provision
+            items:
+              - key: dashboards
+                path: dashboards.yaml
+            defaultMode: 0644
+        - name: dashboards-node-dashboard
+          configMap:
+            name: grafana-dashboards
+            items:
+              - key: node-dashboard
+                path: node-dashboard.json
+            defaultMode: 0644
+
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+spec:
+  type: NodePort
+  selector:
+    app: grafana
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
