@@ -5,7 +5,9 @@
 ansible_python_interpreter=${interpreter_python}
 
 [controlplane]
-cp1  ansible_host=${cp1}
+%{ for idx, cp in controlplane_ips ~}
+cp${idx}  ansible_host=${cp}
+%{ endfor ~}
 
 [controlplane:vars]
 ansible_ssh_user=ubuntu
@@ -15,7 +17,9 @@ apiEndpoint=api.${cluster_name}
 ansible_python_interpreter=/usr/bin/python3
 
 [worker]
-worker1  ansible_host=${worker1}
+%{ for idx, worker in worker_ips ~}
+worker${idx}  ansible_host=${worker}
+%{ endfor ~}
 
 [worker:vars]
 ansible_ssh_user=ubuntu
