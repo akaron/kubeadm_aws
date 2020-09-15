@@ -4,13 +4,14 @@ files and also in the commands or descriptions below).
 Add helm repo and update repo if not yet
 ```
 helm repo add stable https://kubernetes-charts.storage.googleapis.com
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
 ```
 
 # Deploy Prometheus (with storage in LocalPath of VM)
 ```
 kubectl create -f prometheus-pvc.yaml
-helm install prometheus stable/prometheus --version 11.12.0 -f prometheus-values.yaml
+helm install prometheus prometheus-community/prometheus -f /vagrant/k8s/prometheus-values.yml
 kubectl create -f prometheus-ingress.yml
 ```
 
@@ -20,6 +21,11 @@ For test purpose, can also use prometheus without persistent storage:
 
 After deploy the `ingress` resource, need go to aws route 53 console, add a record for
 `prometheus.k8s.apicat.xyz`, alias to the NLB of the ingress-nginx-controller.
+
+Open the address in browser. And shoudl able to use prometheus, for instance, to check
+the cpu usage of each node, one may use something like:
+`100 - (avg by (instance)(rate(node_cpu_seconds_total{mode="idle"}[5m])))*100`
+
 
 
 # Install Grafana
@@ -36,16 +42,16 @@ prometheus-server and a simple dash-board.
 
 # clean up
 ```
+kubectl delete -f grafana-ingress.yml
+kubectl delete -f grafana-deployment.yaml
+kubectl delete -f grafana-configmaps.yaml
 kubectl delete -f prometheus-ingress.yml
 helm uninstall prometheus
 # kubectl delete -f prometheus-pvc.yaml
-kubectl delete -f grafana-configmaps.yaml
-kubectl delete -f grafana-deployment.yaml
-kubectl delete -f grafana-ingress.yml
 ```
 
-If you want to keep the prometheus data, don't remove the PVC as shown above.
-Both route53 records also need to remove manually.
+If you want to remove the prometheus data in the persistent storage, uncomment the last
+line above. Both route53 records also need to remove manually.
 
 
 # notes
@@ -53,3 +59,12 @@ Both route53 records also need to remove manually.
 * The helm chart
   - the default values for the helm chart is in
     https://github.com/helm/charts/blob/master/stable/prometheus/values.yaml .
+* Not sure if which is a better way to check pending deployments/pods:
+  - `avg by (deployment)(kube_deployment_status_condition{status="false"} == 1)`
+  - `kube_pod_status_unschedulable`
+  - To test, create a deployment which cannot be scheduled. For instance, add a
+    `nodeSelector` in `../hello.yml` (same depth as container)
+```
+      nodeSelector:
+        iops: five
+```
