@@ -9,6 +9,8 @@ alertmanager:
     runAsNonRoot: true
     runAsGroup: 1000
     fsGroup: 1000
+  ingress:
+    enabled: false
 
 
 server:
@@ -21,6 +23,15 @@ server:
     runAsNonRoot: true
     runAsGroup: 1000
     fsGroup: 1000
+  ingress:
+    enabled: true
+    hosts:
+      - prometheus.k8s.apicat.xyz
+      - k8s.apicat.xyz/prometheus
+    tls:
+      - secretName: prometheus-tls
+        hosts:
+          - prometheus.k8s.apicat.xyz
 
 nodeExporter:
   tolerations:

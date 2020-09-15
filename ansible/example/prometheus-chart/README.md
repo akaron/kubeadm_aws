@@ -8,10 +8,11 @@ helm repo add prometheus-community https://prometheus-community.github.io/helm-c
 helm repo update
 ```
 
-# Deploy Prometheus (with storage in LocalPath of VM)
+# Deploy Prometheus with persistentStorage and TLS/HTTPS
 ```
+sh ./gen_cert.sh
 kubectl create -f prometheus-pvc.yaml
-helm install prometheus prometheus-community/prometheus -f /vagrant/k8s/prometheus-values.yml
+helm install prometheus prometheus-community/prometheus -f /vagrant/ansible/example/prometheus-chart/prometheus-values.yaml
 kubectl create -f prometheus-ingress.yml
 ```
 
@@ -22,7 +23,7 @@ For test purpose, can also use prometheus without persistent storage:
 After deploy the `ingress` resource, need go to aws route 53 console, add a record for
 `prometheus.k8s.apicat.xyz`, alias to the NLB of the ingress-nginx-controller.
 
-Open the address in browser. And shoudl able to use prometheus, for instance, to check
+Open the address in browser. And should able to use prometheus, for instance, to check
 the cpu usage of each node, one may use something like:
 `100 - (avg by (instance)(rate(node_cpu_seconds_total{mode="idle"}[5m])))*100`
 
