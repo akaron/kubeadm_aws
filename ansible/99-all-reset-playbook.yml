@@ -24,7 +24,7 @@
         module: file
         state: absent
         path: "{{ item }}"
-        with_items:
-          - kubeconfig
-          - join-cert
-          - join-command
+      with_items:
+        - kubeconfig
+        - join-cert
+        - join-command
