@@ -15,6 +15,7 @@ virtualenv -p /usr/bin/python3 /home/vagrant/venv
 source /home/vagrant/venv/bin/activate
 pip3 install ansible openshift pyyaml
 echo "source /home/vagrant/venv/bin/activate" >> /home/vagrant/.bashrc
+echo "export KUBECONFIG=/vagrant/ansible/kubeconfig.yml" >> /home/vagrant/.bashrc
 SCRIPT
 
 Vagrant.configure("2") do |config|
@@ -25,6 +26,8 @@ Vagrant.configure("2") do |config|
     v.memory = "1536"
   end
   # config.vm.synced_folder '.', '/vagrant', disabled: true
+
+  config.vm.network "forwarded_port", guest: 9090, host: 9090, host_ip: "127.0.0.1", protocol: "tcp"
   
   config.vm.provision "file", source: "~/tmp/.aws", destination: "$HOME/.aws"
   config.vm.provision "shell", inline: $script

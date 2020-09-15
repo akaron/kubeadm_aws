@@ -160,9 +160,14 @@ cd ../terraform
 terraform destroy
 ```
 
-After `terraform destroy`, no matter it success or not, it would be better to use aws
-console and verify that all resources are deleted (especially route 53 records and Load
-Balancers).  If `terraform destroy` fails, you may need to use aws console to remove a few
-things (for instance, manually created resources are not managed by terraform, if these
-resources depend on the terraform-created resources, terraform destroy is likely to fail)
-. Then run `terraform destroy` again until it success.
+In my case, it occured a few times that `terraform destroy` took more than 10 minutes to
+delete some resources. In such case need to use aws console to find out what other
+resources are depend on the resource and delete the resource, and run `terraform destroy`
+again (if you `CTRL-C` the previous one).
+
+If you use the k8s cluster to create applications which use extra aws resources (for
+instance, `./ansible/example/wordpress-volumes`), you also need to remove these manually
+from aws console. It usually includes:
+* route 53 A-records
+* EBS
+* EFS

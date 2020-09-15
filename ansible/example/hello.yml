@@ -46,7 +46,7 @@ metadata:
     app: hello
 spec:
   rules:
-  - host: hello.k8s.optract.space
+  - host: hello.k8s.apicat.xyz
     http:
       paths:
       - path: /

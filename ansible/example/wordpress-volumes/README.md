@@ -19,3 +19,6 @@ kubectl create -f ingress.yml
 then in aws route 53 console, add an record for `wp.k8s.optract.space`, alias to the NLB
 of the ingress-nginx-controller.
 
+# note
+* Although EBS is defined in this k8s cluster as a `storageClass`, due to restrictions of
+  EBS, in this case EFS is a viable choice.
