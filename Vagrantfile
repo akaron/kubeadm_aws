@@ -6,7 +6,7 @@
 $script = <<-SCRIPT
 apt-get update -y
 apt-get install unzip virtualenv -y
-curl https://releases.hashicorp.com/terraform/0.13.2/terraform_0.13.2_linux_amd64.zip -o terraform.zip -s
+curl https://releases.hashicorp.com/terraform/0.13.3/terraform_0.13.3_linux_amd64.zip -o terraform.zip -s
 unzip terraform.zip
 mv terraform /usr/local/bin
 rm terraform.zip
