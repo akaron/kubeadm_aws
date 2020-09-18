@@ -46,7 +46,7 @@ metadata:
     app: hello
 spec:
   rules:
-  - host: hello.k8s.apicat.xyz
+  - host: hello.apicat.xyz
     http:
       paths:
       - path: /

@@ -14,15 +14,15 @@
 master:
   runAsUser: 1000
   fsGroup: 1000
-  clusterZone: jenkins.k8s.apicat.xyz
+  clusterZone: jenkins.apicat.xyz
   ingress:
     enabled: true
     Annotations:
       kubernetes.io/ingress.class: "nginx"
       kubernetes.io/ingress.allow-http: "false"
-    hostName: jenkins.k8s.apicat.xyz
+    hostName: jenkins.apicat.xyz
     TLS:
-      - hosts: jenkins.k8s.apicat.xyz
+      - hosts: jenkins.apicat.xyz
         secretName:
   nodeSelector:
     topology.kubernetes.io/zone: us-east-2a
