@@ -64,3 +64,20 @@ output "worker-private-ips" {
 output "worker-public-ips" {
   value = data.aws_instances.worker.public_ips
 }
+
+resource "aws_cloudwatch_metric_alarm" "asg-worker" {
+  alarm_name          = "asg-worker"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = "120"
+  statistic           = "Average"
+  threshold           = "80"
+
+  dimensions = {
+    AutoScalingGroupName = aws_autoscaling_group.worker.name
+  }
+
+  alarm_description = "This metric monitors ec2 cpu utilization for k8s worker nodes"
+}

@@ -64,3 +64,20 @@ output "controlplane-private-ips" {
 output "controlplane-public-ips" {
   value = data.aws_instances.controlplane.public_ips
 }
+
+resource "aws_cloudwatch_metric_alarm" "asg-controlplane" {
+  alarm_name          = "asg-controlplane"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = "120"
+  statistic           = "Average"
+  threshold           = "80"
+
+  dimensions = {
+    AutoScalingGroupName = aws_autoscaling_group.controlplane.name
+  }
+
+  alarm_description = "This metric monitors ec2 cpu utilization for k8s controlplane nodes"
+}
