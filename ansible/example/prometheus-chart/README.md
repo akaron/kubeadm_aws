@@ -1,6 +1,8 @@
 Here I use the hosted domain name `apicat.xyz`, change it to your own domain (in yaml
 files and also in the commands or descriptions below).
 
+Here assume the cert-manager is deployed with the Issuer "letsencrypt-staging" (see `../cert-manager`).
+
 Add helm repo and update repo if not yet
 ```
 helm repo add stable https://kubernetes-charts.storage.googleapis.com
@@ -10,10 +12,8 @@ helm repo update
 
 # Deploy Prometheus with persistentStorage and TLS/HTTPS
 ```
-sh ./gen_cert.sh
 kubectl create -f prometheus-pvc.yaml
 helm install prometheus prometheus-community/prometheus -f /vagrant/ansible/example/prometheus-chart/prometheus-values.yaml
-kubectl create -f prometheus-ingress.yml
 ```
 
 For test purpose, can also use prometheus without persistent storage:
@@ -26,8 +26,6 @@ After deploy the `ingress` resource, need go to aws route 53 console, add a reco
 Open the address in browser. And should able to use prometheus, for instance, to check
 the cpu usage of each node, one may use something like:
 `100 - (avg by (instance)(rate(node_cpu_seconds_total{mode="idle"}[5m])))*100`
-
-
 
 # Install Grafana
 ```
@@ -69,3 +67,23 @@ line above. Both route53 records also need to remove manually.
       nodeSelector:
         iops: five
 ```
+
+## without cert-manager
+Note that if don't use cert-manager and want to generate and use self-signed cert,
+need to generate a secret use a script like below
+```
+export KEY_FILE=my-prometheus.key
+export CERT_FILE=my-prometheus.cert
+export CERT_NAME=prometheus-tls
+export HOST=prometheus.apicat.xyz
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ${KEY_FILE} -out ${CERT_FILE} -subj "/CN=${HOST}/O=${HOST}"
+kubectl create secret tls ${CERT_NAME} --key ${KEY_FILE} --cert ${CERT_FILE}
+```
+and remove following line in `prometheus-values.yml` (in `annotations`)
+```
+      cert-manager.io/issuer: "letsencrypt-staging"
+```
+
+For Grafana it's similar. Remove the `issuer` annotation in the kind `Ingress` and upload
+or reuse a certification.
+
