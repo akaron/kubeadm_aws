@@ -4,7 +4,7 @@
 # > kubectl create -f pv-claim.yml
 #
 # Then run this helm script (update the arguments of this file)
-# helm install myjenkins -f ./jenkins-values.yml --set persistence.storageClass=jenkins-home stable/jenkins
+# helm install myjenkins -f ./jenkins-values.yml
 #
 # Note:
 # * In aws, the PVC and the node may locate in different availible zones (AZs). Need to make
@@ -20,9 +20,14 @@ master:
     Annotations:
       kubernetes.io/ingress.class: "nginx"
       kubernetes.io/ingress.allow-http: "false"
+    annotations:
+      cert-manager.io/issuer: "letsencrypt-staging"
     hostName: jenkins.apicat.xyz
     TLS:
       - hosts: jenkins.apicat.xyz
-        secretName:
+        secretName: jenkins-ex-tls
   nodeSelector:
-    topology.kubernetes.io/zone: us-east-2a
+    topology.kubernetes.io/zone: ap-southeast-1a
+persistence:
+  enabled: true
+  storageClass: standard-a

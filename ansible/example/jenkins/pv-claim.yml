@@ -4,9 +4,10 @@ metadata:
   name: jenkins-home
   annotations:
     volume.beta.kubernetes.io/storage-class: "standard"
+    failure-domain.beta.kubernetes.io/zone: "ap-southeast-1a"
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 13Gi
+      storage: 12Gi
