@@ -48,7 +48,7 @@ resource "aws_security_group_rule" "master-ssh-for-home" {
   protocol          = "tcp"
   description       = ""
   security_group_id = aws_security_group.controlplane.id
-  cidr_blocks       = ["${var.myip_cidr}"]
+  cidr_blocks       = [var.myip_cidr]
 }
 
 resource "aws_security_group_rule" "master-all-for-master" {
@@ -100,7 +100,7 @@ resource "aws_security_group_rule" "worker-ssh-from-home" {
   protocol          = "tcp"
   description       = ""
   security_group_id = aws_security_group.worker.id
-  cidr_blocks       = ["${var.myip_cidr}"]
+  cidr_blocks       = [var.myip_cidr]
 }
 
 resource "aws_security_group_rule" "worker-kubelet-for-self" {

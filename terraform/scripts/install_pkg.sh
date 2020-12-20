@@ -7,7 +7,7 @@ add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu xe
 curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 add-apt-repository "deb https://apt.kubernetes.io/ kubernetes-xenial main"
 apt-get update
-apt-get install -y docker-ce docker-ce-cli containerd.io kubeadm=1.18.3-00 kubectl=1.18.3-00 kubelet=1.18.3-00
+apt-get install -y docker-ce docker-ce-cli containerd.io kubeadm=1.19.5-00 kubectl=1.19.5-00 kubelet=1.19.5-00
 apt-mark hold kubelet kubeadm kubectl
 usermod -aG docker ubuntu
 cat > /etc/docker/daemon.json <<EOF

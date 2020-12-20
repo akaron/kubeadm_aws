@@ -6,11 +6,12 @@
 $script = <<-SCRIPT
 apt-get update -y
 apt-get install unzip virtualenv -y
-curl https://releases.hashicorp.com/terraform/0.13.3/terraform_0.13.3_linux_amd64.zip -o terraform.zip -s
+curl https://releases.hashicorp.com/terraform/0.14.3/terraform_0.14.3_linux_amd64.zip -o terraform.zip -s
 unzip terraform.zip
 mv terraform /usr/local/bin
 rm terraform.zip
 su - vagrant
+ssh-keygen -t rsa -f ~/.ssh/id_rsa -N ''
 virtualenv -p /usr/bin/python3 /home/vagrant/venv
 source /home/vagrant/venv/bin/activate
 pip3 install ansible openshift pyyaml
@@ -19,7 +20,7 @@ echo "export KUBECONFIG=/vagrant/ansible/kubeconfig.yml" >> /home/vagrant/.bashr
 SCRIPT
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/bionic64"
+  config.vm.box = "ubuntu/xenial64"
 
   config.vm.provider "virtualbox" do |v|
     v.name = "aws_kubeadm_tst"
@@ -27,8 +28,10 @@ Vagrant.configure("2") do |config|
   end
   # config.vm.synced_folder '.', '/vagrant', disabled: true
 
+  # open a port just in case
   config.vm.network "forwarded_port", guest: 9090, host: 9090, host_ip: "127.0.0.1", protocol: "tcp"
   
-  config.vm.provision "file", source: "~/tmp/.aws", destination: "$HOME/.aws"
-  config.vm.provision "shell", inline: $script
+  # assume aws credentials in "~/tmp/.aws"
+  # config.vm.provision "file", source: "~/tmp/.aws", destination: "$HOME/.aws"
+  # config.vm.provision "shell", inline: $script
 end

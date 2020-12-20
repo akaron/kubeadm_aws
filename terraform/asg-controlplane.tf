@@ -4,7 +4,7 @@ resource "aws_launch_configuration" "controlplane" {
   iam_instance_profile        = aws_iam_instance_profile.controlplane.id
   image_id                    = data.aws_ami.ubuntu.id
   instance_type               = var.instance_type_controlplane
-  security_groups             = ["${aws_security_group.controlplane.id}"]
+  security_groups             = [aws_security_group.controlplane.id]
   key_name                    = aws_key_pair.quickstart_key_pair.id
   user_data = data.template_cloudinit_config.k8s_all.rendered
   lifecycle {
