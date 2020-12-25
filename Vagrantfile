@@ -11,7 +11,6 @@ unzip terraform.zip
 mv terraform /usr/local/bin
 rm terraform.zip
 su - vagrant
-ssh-keygen -t rsa -f ~/.ssh/id_rsa -N ''
 virtualenv -p /usr/bin/python3 /home/vagrant/venv
 source /home/vagrant/venv/bin/activate
 pip3 install ansible openshift pyyaml
@@ -20,7 +19,7 @@ echo "export KUBECONFIG=/vagrant/ansible/kubeconfig.yml" >> /home/vagrant/.bashr
 SCRIPT
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/xenial64"
+  config.vm.box = "ubuntu/focal64"
 
   config.vm.provider "virtualbox" do |v|
     v.name = "aws_kubeadm_tst"
@@ -32,6 +31,6 @@ Vagrant.configure("2") do |config|
   config.vm.network "forwarded_port", guest: 9090, host: 9090, host_ip: "127.0.0.1", protocol: "tcp"
   
   # assume aws credentials in "~/tmp/.aws"
-  # config.vm.provision "file", source: "~/tmp/.aws", destination: "$HOME/.aws"
-  # config.vm.provision "shell", inline: $script
+  config.vm.provision "file", source: "~/tmp/.aws", destination: "$HOME/.aws"
+  config.vm.provision "shell", inline: $script
 end

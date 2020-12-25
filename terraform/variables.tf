@@ -26,13 +26,11 @@ variable "prefix" {
 variable "ssh_private_key_file_name" {
   type        = string
   description = "File path and name of SSH private key used for infrastructure"
-  default     = "~/.ssh/id_rsa"
 }
 
 variable "ssh_public_key_file_name" {
   type        = string
   description = "File path and name of SSH public key used for infrastructure"
-  default     = "~/.ssh/id_rsa.pub"
 }
 
 variable "instance_type_controlplane" {
