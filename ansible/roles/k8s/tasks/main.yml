@@ -67,28 +67,32 @@
       - "* Please wait a few minutes for AWS to generate a Network Load Balancer (NLB)"
       - "* By default the ingress-nginx controller is deployed in a worker-node"
 
-- name: Add TLS termination for NLB
-  block:
-  - name: Get ingress-nginx controller definition
-    get_url:
-      url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.35.0/deploy/static/provider/aws/deploy-tls-termination.yaml
-      dest: ./deploy_cache/deploy-tls-termination.yaml
-      mode: '0644'
+# In some scenarios is required to terminate TLS in the Load Balancer and not in the ingress controller.
+# see https://kubernetes.github.io/ingress-nginx/deploy/#tls-termination-in-aws-load-balancer-elb
+# - name: Add TLS termination for NLB
+#   block:
+#   - name: Get ingress-nginx controller definition
+#     get_url:
+#       url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.35.0/deploy/static/provider/aws/deploy-tls-termination.yaml
+#       dest: ./deploy_cache/deploy-tls-termination.yaml
+#       mode: '0644'
 
-  - name: edit the file
-    lineinfile:
-      path: ./deploy_cache/deploy-tls-termination.yaml
-      regexp: '  proxy-real-ip-cidr:.*'
-      line: '  proxy-real-ip-cidr: YYY.YYY.YYY/YY'
+#   - name: edit the file
+#     lineinfile:
+#       path: ./deploy_cache/deploy-tls-termination.yaml
+#       regexp: '  proxy-real-ip-cidr:.*'
+#       line: '  proxy-real-ip-cidr: YYY.YYY.YYY/YY'
 
-  - name: edit the file
-    lineinfile:
-      path: ./deploy_cache/deploy-tls-termination.yaml
-      regexp: '    service.beta.kubernetes.io/aws-load-balancer-ssl-cert:.*'
-      line: '    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-west-2:YYYYYYYY:certificate/YYYYYY-YYYYYYY-YYYYYYY-YYYYYYYY'
+#   - name: edit the file
+#     lineinfile:
+#       path: ./deploy_cache/deploy-tls-termination.yaml
+#       regexp: '    service.beta.kubernetes.io/aws-load-balancer-ssl-cert:.*'
+#       line: '    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-west-2:YYYYYYYY:certificate/YYYYYY-YYYYYYY-YYYYYYY-YYYYYYYY'
 
-  # - name: Deploy TLS termination
-  #   k8s:
-  #     apply: yes
-  #     src: ./deploy_cache/deploy-tls-termination.yaml
-  #     kubeconfig: "{{ kubeconfig }}"
+#   - name: Deploy TLS termination
+#     k8s:
+#       apply: yes
+#       src: ./deploy_cache/deploy-tls-termination.yaml
+#       kubeconfig: "{{ kubeconfig }}"
+#
+
