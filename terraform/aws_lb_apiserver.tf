@@ -22,10 +22,6 @@ resource "aws_lb_target_group" "apiserver" {
   port     = 6443
   protocol = "TCP"
   vpc_id   = module.vpc.id
-  stickiness {
-    type    = "lb_cookie"
-    enabled = false
-  }
 }
 
 # Note: Use "aws_lb_target_group_attachment" to add an instance (as shown in comment below).

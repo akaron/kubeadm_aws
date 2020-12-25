@@ -1,0 +1,26 @@
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: InitConfiguration
+localAPIEndpoint:
+  advertiseAddress: {{ private_ipv4 }}
+  bindPort: 6443
+---
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: ClusterConfiguration
+clusterName: kubernetes
+kubernetesVersion: v1.19.0
+networking:
+  dnsDomain: cluster.local
+  serviceSubnet: 10.96.0.0/12
+apiServer:
+  extraArgs:
+    cloud-provider: "aws"
+    runtime-config: "api/all=true"
+  certSANs:
+  - {{ apiEndpoint }}
+controllerManager:
+  extraArgs:
+    cloud-provider: "aws"
+    horizontal-pod-autoscaler-use-rest-clients: "true"
+    horizontal-pod-autoscaler-sync-period: "10s"
+    node-monitor-grace-period: "10s"
+controlPlaneEndpoint: "{{ apiEndpoint }}:6443"

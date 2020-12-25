@@ -1,10 +1,19 @@
 ---
 # tasks file for master
+- name: Get private ip for aws hosts
+  uri:
+    url: http://169.254.169.254/latest/meta-data/local-ipv4
+    return_content: yes
+  register: ipv4
+  failed_when: ipv4.status != 200
+
 - name: Copy kubeadm config to controlplane
   template:
-    src: aws.yml.j2
+    src: kubeadm-init.yaml.j2
     dest: "{{ kubeadm_config_dest }}"
     mode: '0644'
+  vars:
+    - private_ipv4: "{{ ipv4.content }}"
 
 - name: Initialize kubernetes cluster using the kubeadm config
   command: kubeadm init --config {{ kubeadm_config_dest }} --upload-certs

@@ -7,8 +7,8 @@ aws_region = ""  # such as "us-east-2"
 # myip_cidr: for aws security group to open some ports to this machine
 # should use something other than "0.0.0.0/32"
 myip_cidr = ""
-route53_hosted_zone = ""  # assume the hosted_zone already created (dont forget the '.' in the end)
-# cluster_name = "myCluster"
+route53_hosted_zone = ""  # assume the hosted_zone already created. such as "example.com." (there's a dot in the end)
+cluster_name = ""  # such as "example.com"
 
 interpreter_python = "/usr/bin/python3"  # for ansible inventory file
 

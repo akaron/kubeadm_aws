@@ -13,8 +13,7 @@ variable "aws_region" {
 
 variable "cluster_name" {
   type        = string
-  description = "name of kubernetes cluster (used in tags)"
-  default     = "myCluster"
+  description = "domain name of kubernetes cluster (such as example.com)"
 }
 
 variable "prefix" {
