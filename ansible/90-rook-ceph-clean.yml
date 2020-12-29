@@ -1,0 +1,40 @@
+---
+- hosts: localhost
+  gather_facts: no
+  become: no
+  vars:
+    - kubeconfig: /vagrant/ansible/kubeconfig.yml
+    - cephdir: "{{ playbook_dir }}/rook/cluster/examples/kubernetes/ceph"
+
+  tasks:
+  - debug:
+      msg: "run `kubectl delete pvc --all` before or during this playbook, then remove corresponding EBS manually"
+     
+  # https://rook.io/docs/rook/v1.5/ceph-quickstart.html
+
+  - name: Delete rook-ceph
+    block:
+    - name: Delete rook-ceph block storage 
+      community.kubernetes.k8s:
+        state: absent
+        src: "{{ cephdir }}/{{ item }}"
+        kubeconfig: "{{ kubeconfig }}"
+      with_items:
+        - csi/rbd/storageclass.yaml
+
+    - name: Delete rook-ceph cluster
+      community.kubernetes.k8s:
+        state: absent
+        src: "{{ cephdir }}/cluster.yaml"
+        kubeconfig: "{{ kubeconfig }}"
+
+    - name: Delete rook-ceph operator
+      community.kubernetes.k8s:
+        state: absent
+        src: "{{ cephdir }}/{{ item }}"
+        kubeconfig: "{{ kubeconfig }}"
+      with_items:
+        - crds.yaml
+        - common.yaml
+        - operator.yaml
+

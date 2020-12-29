@@ -1,0 +1,70 @@
+---
+- hosts: localhost
+  gather_facts: no
+  become: no
+  vars:
+    - kubeconfig: /vagrant/ansible/kubeconfig.yml
+    - cephdir: "{{ playbook_dir }}/rook/cluster/examples/kubernetes/ceph"
+
+  tasks:
+  - debug:
+      msg: "No need to install rook in aws..."
+     
+  # https://rook.io/docs/rook/v1.5/ceph-quickstart.html
+  - name: Install Rook-Ceph
+    block:
+    - name: Get Rook-Ceph (using git)
+      # need to manually remove the `rook` folder if it exists, or comment this block
+      git:
+        repo: https://github.com/rook/rook.git
+        version: v1.5.4
+        dest: "{{ playbook_dir }}/rook"
+        depth: 1
+
+    - name: Deploy Rook-Ceph operator
+      community.kubernetes.k8s:
+        apply: yes
+        src: "{{ cephdir }}/{{ item }}"
+        kubeconfig: "{{ kubeconfig }}"
+      with_items:
+        - crds.yaml
+        - common.yaml
+        - operator.yaml
+
+    - name: Wait a bit
+      wait_for:
+        timeout: 10
+      delegate_to: localhost
+ 
+    # - name: For test environment only, allow multiple mons per node 
+    #       # (i.e., need this if there are only 1 or 2 nodes in k8s cluster)
+    #   lineinfile:
+    #     path: "{{ playbook_dir }}/rook/cluster/examples/kubernetes/ceph/cluster.yaml"
+    #     regexp: '    allowMultiplePerNode.*'
+    #     line:   '    allowMultiplePerNode: true'
+
+    - name: Deploy rook-ceph cluster
+      community.kubernetes.k8s:
+        apply: yes
+        src: "{{ cephdir }}/cluster.yaml"
+        kubeconfig: "{{ kubeconfig }}"
+
+    - name: Wait a bit
+      wait_for:
+        timeout: 40
+      delegate_to: localhost
+ 
+    - name: Deploy rook-ceph block storage (CephBlockPool and StorageClass)
+      community.kubernetes.k8s:
+        apply: yes
+        src: "{{ cephdir }}/{{ item }}"
+        kubeconfig: "{{ kubeconfig }}"
+      with_items:
+        - csi/rbd/storageclass.yaml
+    
+    # probaly no need this
+    # - name: Deploy rook-ceph toolbox
+    #   community.kubernetes.k8s:
+    #     apply: yes
+    #     src: "{{ cephdir }}/toolbox.yaml"
+    #     kubeconfig: "{{ kubeconfig }}"

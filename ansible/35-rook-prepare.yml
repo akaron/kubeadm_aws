@@ -1,0 +1,16 @@
+---
+- hosts: worker
+  become: yes
+  tasks:
+  - debug:
+      msg: "Go to aws console and manually create EBS volumes and attach to nodes (at least 3 nodes)"
+    delegate_to: localhost
+
+  - name: Install ceph-common
+    apt:
+      pkg: ceph-common
+
+  - name: modprobe rbd
+    community.general.modprobe:
+      name: rbd
+      state: present
