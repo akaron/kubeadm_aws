@@ -4,7 +4,11 @@
   command: "{{ item }}"
   with_items:
     - kubeadm reset -f
-    - rm -fr /root/.kube
+
+- name: Remove /root/.kube
+  file:
+    path: /root/.kube
+    state: absent
 
 - name: Get token/endpoint/cacerthash for node-kubeadm.yml
   local_action:

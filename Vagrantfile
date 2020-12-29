@@ -14,8 +14,10 @@ su - vagrant
 virtualenv -p /usr/bin/python3 /home/vagrant/venv
 source /home/vagrant/venv/bin/activate
 pip3 install ansible openshift pyyaml
+ansible-galaxy collection install community.kubernetes
 echo "source /home/vagrant/venv/bin/activate" >> /home/vagrant/.bashrc
 echo "export KUBECONFIG=/vagrant/ansible/kubeconfig.yml" >> /home/vagrant/.bashrc
+echo 'source <(kubectl completion bash)' >>~/.bashrc
 SCRIPT
 
 Vagrant.configure("2") do |config|
