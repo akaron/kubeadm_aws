@@ -8,8 +8,9 @@ controlplane (master) node and 3 worker nodes, network load balancers (NLB) for 
 cluster and nginx ingress controller, and some EBS storages.
 
 By default it costs more than 5 US dollars per day. For test purpose, in the beginning you
-can use smaller machines (such as `t3a.small`) and destroy the infrastructure when you
-don't need it (and start another one with same infra in the next day easily).
+can use smaller machines (such as `t3a.small`), use only 1 worker node (see the
+`Autoscaling group` section below), and destroy the infrastructure when you don't need it
+(it takes about 10 minutes to start if no need to update the configurations).
 
 Tested on MacOS 10.15.x and Ubuntu 18.04.
 
@@ -66,7 +67,7 @@ Usually it take several minutes until everything are ready.
 
 ## ansible
 > Note: if you want to update inventory file, a better approach is to update `terraform/inventory.tmpl`
-> and perhaps also `terraform/local_file.tmpl`. And run `terraform plan && terraform apply`
+> and perhaps also `terraform/local_file.tf`. Then run `terraform plan && terraform apply`
 
 Now, the EC2 instances are initialized (by `terraform/cloudinit.tf`).
 Need further configurations for k8s cluster.
@@ -136,16 +137,23 @@ Usually after a few minutes, you can access to the `hello.example.com` from your
 At this deployment, there are two aws autoscaling group (asg), one for controlplane nodes
 and the other for worker nodes.
 
-To improve the availability, a good starting point for HA is to have 3 nodes for each asg
+### use more or less master or worker nodes
+To improve the availability, a good starting point for is to have 3 nodes for each asg
 group. One reason is that `etcd` need odd number of nodes to avoid `split brain`. The
 other reason is that in most case there are 3-4 available zones (AZs) in each aws region,
 and asg by default spreads nodes to different AZs.
+
+To do this, need to edit `terraform/asg-controlplane.tf` and/or `terraform/asg-worker.tf`,
+update the `max_size` and `min_size`.
+
+### Replace nodes
+**NOTE: haven't test this part for newer version of k8s cluster**
 
 If a node is down, asg should able to automatically brought up another one.  But the new
 node cannot join the cluster automatically, need to do these manually (note: consider use
 aws SNS to notify via email).
 
-To re-join a worker node (say, `worker2`), run:
+To re-join a worker node, run:
 ```
 cd /vagrant/terraform; terraform plan; terraform apply
 cd ../ansible
@@ -158,19 +166,20 @@ For controlplane group, need to update the certificate (use the script in the ta
 the certificate for other controlplane..." in `20-cp1-kubeadm_init-playbook.yml`, and copy
 the result to `ansible/join-cert`). Once done, run
 
-For controlplane group, need to update the certificate
+To re-join a controlplane require more works. Assume the node `cp1` is still the original one:
 ```
 cd /vagrant/ansible
 ansible -i inventory --become -m command -a 'kubeadm init phase upload-certs --upload-certs' cp1
 ```
-Then copy the cert key (64 characters) to `ansible/join-cert`.
-Once done, run
+
+Then copy the cert key (64 characters) to `ansible/join-cert`. Once done, run
 ```
 cd /vagrant/terraform; terraform plan; terraform apply
 cd ../ansible
 ansible-playbook -i inventory 25-masterAll.yml --limit cp3
 ```
-Again, assume the `cp3` is the new node (in the inventory file).
+Again, assume the `cp3` is the newly spawned node by aws autoscaling group (check the
+updates of the inventory file to find out the new nodes).
 
 
 # destroy the cluster
@@ -183,13 +192,14 @@ cd ../terraform
 terraform destroy
 ```
 
-In my case, it occured a few times that `terraform destroy` took more than 10 minutes to
-delete some resources. In such case need to use aws console to find out what other
-resources are depend on the resource and delete the resource, and run `terraform destroy`
-again (if you `CTRL-C` the previous one).
+It should take a few minutes. Occasionally `terraform destroy` took more than 10 minutes
+to delete some resources. In such case need to use aws console to check, probably other
+resource depend on that one and somehow failed to remove. Delete those resources and run
+`terraform destroy` again.
 
 You should make sure aws resources are destroyed from aws console, especially:
 * route 53 A-records
-* EBS
-* EFS
-* NLB
+* In EC2 console:
+  - EBS
+  - EFS
+  - NLB
