@@ -9,7 +9,7 @@ cluster and nginx ingress controller, and some EBS storages.
 
 By default it costs more than 5 US dollars per day. For test purpose, in the beginning you
 can use smaller machines (such as `t3a.small`), use only 1 worker node (see the
-`Autoscaling group` section below), and destroy the infrastructure when you don't need it
+`Auto Scaling groups` section below), and destroy the infrastructure when you don't need it
 (it takes about 10 minutes to start if no need to update the configurations).
 
 Tested on MacOS 10.15.x and Ubuntu 18.04.
@@ -106,13 +106,13 @@ ansible-playbook -i inventory 30-workerAll.yml
 Usually one should simply use the `default` StorageClass which use aws-ebs provisioner,
 which is deployed in `25-k8s.yml` ansible playbook. Install rook-ceph is for test only.
 
-First go to aws console and create 3 EBS volumes (10GB, for instance) for each worker node
+First use aws console to create 3 EBS volumes (10GB, for instance) for each worker node
 and attach those volumes to EC2 instances (has to be in same AZ as the instance). Then run
 ```
-ansible-p[laybook -i inventory 35-rook-prepare.yml
-ansible-p[laybook -i inventory 40-rook-ceph.yml
+ansible-playbook -i inventory 35-rook-prepare.yml
+ansible-playbook -i inventory 40-rook-ceph.yml
 ```
-Note that the `40-rool-ceph.yml` playbook clones https://github.com/rook/rook.git.
+Note that the `40-rook-ceph.yml` playbook clones https://github.com/rook/rook.git.
 Once done, you can use the StorageClass `rook-ceph-block` in k8s cluster.
 
 # k8s examples
@@ -133,20 +133,21 @@ Next is to test the ingress controller. In `ansible/example/hello.yml`:
 
 Usually after a few minutes, you can access to the `hello.example.com` from your own browser.
 
-## Autoscaling group
+# Notes
+## Auto Scaling Groups
 At this deployment, there are two aws autoscaling group (asg), one for controlplane nodes
-and the other for worker nodes.
+and the other for worker nodes. By default there's one master node and three worker nodes.
 
-### use more or less master or worker nodes
-To improve the availability, a good starting point for is to have 3 nodes for each asg
-group. One reason is that `etcd` need odd number of nodes to avoid `split brain`. The
-other reason is that in most case there are 3-4 available zones (AZs) in each aws region,
-and asg by default spreads nodes to different AZs.
+### use more (or less) master or worker nodes
+To improve the availability, a good starting point for is to have 3 worker nodes instead
+of one. Three is a good number since `etcd` need odd number of nodes to avoid `split
+brain`. Also, in most case there are 3-4 available zones (AZs) in each aws region, and asg
+by default spreads nodes to different AZs.
 
-To do this, need to edit `terraform/asg-controlplane.tf` and/or `terraform/asg-worker.tf`,
-update the `max_size` and `min_size`.
+To change the number of nodes, need to edit `terraform/asg-controlplane.tf` and/or
+`terraform/asg-worker.tf`, update the `max_size` and `min_size`.
 
-### Replace nodes
+## Replace nodes
 **NOTE: haven't test this part for newer version of k8s cluster**
 
 If a node is down, asg should able to automatically brought up another one.  But the new
@@ -182,7 +183,7 @@ Again, assume the `cp3` is the newly spawned node by aws autoscaling group (chec
 updates of the inventory file to find out the new nodes).
 
 
-# destroy the cluster
+# Destroy the cluster
 ```
 cd /vagrant/ansible
 ansible-playbook -i inventory 90-local-k8s-cleaup.yml
