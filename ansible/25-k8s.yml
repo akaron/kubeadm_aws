@@ -8,4 +8,5 @@
     import_role:
       name: k8s
     vars:
+      - aws_region: ap-southeast-1
       - kubeconfig: /vagrant/ansible/kubeconfig.yml

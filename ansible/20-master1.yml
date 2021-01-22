@@ -9,3 +9,6 @@
       name: master1
     vars:
     - kubeadm_config_dest: "/tmp/kubeadm-init.yml"
+
+  - debug:
+      msg: "run the command in your shell to connect to the k8s cluster: export KUBECONFIG=`pwd`/kubeconfig.yml"
