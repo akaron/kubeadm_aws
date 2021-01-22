@@ -6,6 +6,7 @@ resource "local_file" "inventory" {
     ssh_key_file = var.ssh_private_key_file_name
     cluster_name = var.cluster_name
     interpreter_python = var.interpreter_python
+    aws_region = var.aws_region
   })
   filename = "../ansible/inventory"
   file_permission = "0644"
