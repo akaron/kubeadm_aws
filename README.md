@@ -21,10 +21,14 @@ Tested on MacOS 10.15.x and Ubuntu 18.04.
 * A domain name, such as `example.com` (from domain name register such as namecheap or godaddy)
   - your k8s apiserver will be at `api.example.com`
 * An aws account. And in aws console:
-  - Add a route53 hosted zone for that domain name. You should see a NS record with about 
-    4 values, each value looks like `ns-1234.awsdns-56.org.` (and probably `.co.uk.`, `.com.`, 
-    `.net.`). Note that it costs $0.5/month, so probably only need to do it once.
-  - In domain name register, add these NS record to custom DNS (DNS propagation need sometime)
+  - Add a route53 hosted zone for that domain name. Once done, you should see a NS record with about 
+    4 values, the values looks like `ns-1234.awsdns-56.[org.,co.uk.,com.,net.]`.
+    Note that it costs $0.5/month, so probably only need to do it once.
+  - In domain name register, add these NS record to custom DNS
+      - see https://www.digitalocean.com/community/tutorials/how-to-point-to-digitalocean-nameservers-from-common-domain-registrars,
+        change the `nsx.digitalocean.com` to `ns-xxx.awsdns-xx.org`
+      - the DNS propagation could take sometime, so if you encounter problem to find the host
+        in later steps, just wait a bit.
   - Create an IAM user and get the credential, see https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html
 
 Create a file `~/tmp/.aws/credentials` which looks like
