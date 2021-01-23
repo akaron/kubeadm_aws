@@ -101,7 +101,7 @@ ansible-playbook -i inventory 30-workerAll.yml
   token, cert, and kubeconfig to local machine
 * playbook `25-k8s.yml` creates container network interface (cni), `storageClass`, and
   `nginx-ingress` controller. This step creates a Network Load Balancer in AWS.
-* playbook `25-masterall.yml` joins other third controlplanes to the cluster (by default
+* playbook `25-masterall.yml` joins other controlplanes to the cluster (by default
   there's none)
 * playbook `30-workerAll.yml` joins the worker nodes to the cluster
 
