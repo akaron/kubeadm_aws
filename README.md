@@ -173,13 +173,10 @@ ansible-playbook -i inventory 30-workerAll.yml --limit worker2
 Change the `worker2` to appropriate value (while `terraform apply` you should able to see
 which node's ip address has beed updated, that should be the new EC2 instance).
 
-For controlplane group, need to update the certificate (use the script in the task "Get
-the certificate for other controlplane..." in `20-cp1-kubeadm_init-playbook.yml`, and copy
-the result to `ansible/join-cert`). Once done, run
-
 **NOTE: haven't test the following part for newer version of k8s cluster**
 
-To re-join a controlplane require more works. Assume the node `cp1` is still the original one:
+To re-join a controlplane require also update the certificate. Assume the node `cp1` is
+still the original one:
 ```
 cd /vagrant/ansible
 ansible -i inventory --become -m command -a 'kubeadm init phase upload-certs --upload-certs' cp1
