@@ -1,11 +1,12 @@
 # Purpose
 Deploy a kubernetes (k8s) cluster in aws use vagrant, terraform, ansible, and kubeadm.
 
-A bit more detail: use vagrant to deploy a VM which contain terraform and ansible, use
-terraform to deploy the required resources in aws, then use ansible to prepare EC2
-instances and deploy a k8s cluster using kubeadm. In the end there is k8s cluster with 1
-controlplane (master) node and 3 worker nodes, network load balancers (NLB) for k8s api
-cluster and nginx ingress controller, and some EBS storages.
+A bit more detail: use vagrant to deploy a VM which contain terraform and ansible; use
+terraform to deploy the required resources in aws; use ansible to prepare EC2 instances
+and use kubeadm to deploy a k8s cluster. In the end there is k8s cluster with:
+* one controlplane (master) node and three worker nodes
+* network load balancers (NLB) for k8s api cluster and nginx ingress controller
+* a aws ebs volume provisioner (the StorageClass `standard`)
 
 By default it costs more than 5 US dollars per day. For test purpose, in the beginning you
 can use smaller machines (such as `t3a.small`), use only 1 worker node (see the
@@ -14,9 +15,11 @@ can use smaller machines (such as `t3a.small`), use only 1 worker node (see the
 
 Tested on MacOS 10.15.x and Ubuntu 18.04.
 
+
 # Prerequisites
 * Vagrant and virtualbox installed
 * A domain name, such as `example.com` (from domain name register such as namecheap or godaddy)
+  - your k8s apiserver will be at `api.example.com`
 * An aws account. And in aws console:
   - Add a route53 hosted zone for that domain name. You should see a NS record with about 
     4 values, each value looks like `ns-1234.awsdns-56.org.` (and probably `.co.uk.`, `.com.`, 
@@ -102,6 +105,8 @@ ansible-playbook -i inventory 30-workerAll.yml
   there's none)
 * playbook `30-workerAll.yml` joins the worker nodes to the cluster
 
+Now can run `kubectl get nodes,pods -A` and wait until all nodes and pods are ready.
+
 ### (optional) Install rook-ceph
 Usually one should simply use the `default` StorageClass which use aws-ebs provisioner,
 which is deployed in `25-k8s.yml` ansible playbook. Install rook-ceph is for test only.
@@ -114,6 +119,7 @@ ansible-playbook -i inventory 40-rook-ceph.yml
 ```
 Note that the `40-rook-ceph.yml` playbook clones https://github.com/rook/rook.git.
 Once done, you can use the StorageClass `rook-ceph-block` in k8s cluster.
+
 
 # k8s examples
 See detail in `ansible/example/steps.md` (some may be outdated).
@@ -133,8 +139,9 @@ Next is to test the ingress controller. In `ansible/example/hello.yml`:
 
 Usually after a few minutes, you can access to the `hello.example.com` from your own browser.
 
+
 # Notes
-## Auto Scaling Groups
+## Auto Scaling Groups (asg)
 At this deployment, there are two aws autoscaling group (asg), one for controlplane nodes
 and the other for worker nodes. By default there's one master node and three worker nodes.
 
@@ -148,15 +155,14 @@ To change the number of nodes, need to edit `terraform/asg-controlplane.tf` and/
 `terraform/asg-worker.tf`, update the `max_size` and `min_size`.
 
 ## Replace nodes
-**NOTE: haven't test this part for newer version of k8s cluster**
-
-If a node is down, asg should able to automatically brought up another one.  But the new
-node cannot join the cluster automatically, need to do these manually (note: consider use
-aws SNS to notify via email).
+If a node is down, asg should able to automatically brought up another one (the default
+grace period is 300 seconds).  But the new node cannot join the cluster automatically,
+need to do these manually (note: consider use aws SNS to notify via email).
 
 To re-join a worker node, run:
 ```
-cd /vagrant/terraform; terraform plan; terraform apply
+cd /vagrant/terraform; terraform plan
+terraform apply
 cd ../ansible
 ansible-playbook -i inventory 30-workerAll.yml --limit worker2
 ```
@@ -166,6 +172,8 @@ which node's ip address has beed updated, that should be the new EC2 instance).
 For controlplane group, need to update the certificate (use the script in the task "Get
 the certificate for other controlplane..." in `20-cp1-kubeadm_init-playbook.yml`, and copy
 the result to `ansible/join-cert`). Once done, run
+
+**NOTE: haven't test the following part for newer version of k8s cluster**
 
 To re-join a controlplane require more works. Assume the node `cp1` is still the original one:
 ```
@@ -204,3 +212,15 @@ You should make sure aws resources are destroyed from aws console, especially:
   - EBS
   - EFS
   - NLB
+
+
+# Issues
+* Sometimes the time in the VM drift a lot (`> 10 mins`) and the AWS reject the api calls.
+  This happened to me while I put my mac to sleep over night. Usually just wait a bit until
+  the ntp in the VM synced. Force the ntp service to restart may help (`systemctl restart ntp`).
+  The error message (while run `terraform plan` or `apply`) looks like:
+```
+Error: error configuring Terraform AWS Provider: error validating provider credentials: error calling sts:GetCallerIdentity: SignatureDoesNotMatch: Signature expired: 20210123T002705Z is now earlier than 20210123T003035Z (20210123T004535Z - 15 min.)
+	status code: 403, request id: 3dcc16d0-c61d-419a-a8a1-a782da89cfee
+```
+ 
