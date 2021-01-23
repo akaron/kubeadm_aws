@@ -40,7 +40,7 @@
   - name: Delete ingress-nginx controller
     k8s:
       state: absent
-      src: ./deploy_cache/nginx-ingress-controller-v0_35_0.yaml
+      src: ./deploy_cache/nginx-ingress-controller.yaml
       kubeconfig: ./kubeconfig.yml
 
   # # note: may not always want to delete all PVC

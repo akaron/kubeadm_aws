@@ -52,20 +52,15 @@
 
   - name: Get ingress-nginx controller definition
     get_url:
-      url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.35.0/deploy/static/provider/aws/deploy.yaml
-      dest: ./deploy_cache/nginx-ingress-controller-v0_35_0.yaml
+      url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.43.0/deploy/static/provider/aws/deploy.yaml
+      dest: ./deploy_cache/nginx-ingress-controller.yaml
       mode: '0644'
 
   - name: Deploy Ingress Controller
     k8s:
       apply: yes
-      src: ./deploy_cache/nginx-ingress-controller-v0_35_0.yaml
+      src: ./deploy_cache/nginx-ingress-controller.yaml
       kubeconfig: "{{ kubeconfig }}"
-
-  - debug:
-      msg:
-      - "* Please wait a few minutes for AWS to generate a Network Load Balancer (NLB)"
-      - "* By default the ingress-nginx controller is deployed in a worker-node"
 
 # In some scenarios is required to terminate TLS in the Load Balancer and not in the ingress controller.
 # see https://kubernetes.github.io/ingress-nginx/deploy/#tls-termination-in-aws-load-balancer-elb
