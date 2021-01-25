@@ -111,6 +111,8 @@ ansible-playbook -i inventory 30-workerAll.yml
 
 Now can run `kubectl get nodes,pods -A` and wait until all nodes and pods are ready.
 
+Note that other playbooks between `35-` and less than `90-` are optional.
+
 ### (optional) Install rook-ceph
 Usually one should simply use the `default` StorageClass which use aws-ebs provisioner,
 which is deployed in `25-k8s.yml` ansible playbook. Install rook-ceph is for test only.

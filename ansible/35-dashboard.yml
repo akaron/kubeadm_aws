@@ -1,0 +1,69 @@
+---
+- hosts: localhost
+  gather_facts: no
+  become: no
+  vars:
+    - kubeconfig: /vagrant/ansible/kubeconfig.yml
+
+  tasks:
+  - name: Install Dashboard
+    block:
+    - name: mkdir cache folder for definition file
+      file:
+        path: ./deploy_cache
+        state: directory
+  
+    - name: Get Dashboard definition
+      get_url:
+        url: https://raw.githubusercontent.com/kubernetes/dashboard/v2.1.0/aio/deploy/recommended.yaml
+        dest: ./deploy_cache/dashboard.yaml
+        mode: '0644'
+  
+    - name: Deploy Dashboard
+      community.kubernetes.k8s:
+        apply: yes
+        src: ./deploy_cache/dashboard.yaml
+        kubeconfig: "{{ kubeconfig }}"
+
+    - debug:
+        msg:
+        - "**WARNING** The account has admin access and should not use in production environment"
+
+    - name: Create a service account
+      community.kubernetes.k8s:
+        apply: yes
+        state: present
+        kubeconfig: "{{ kubeconfig }}"
+        definition:
+          kind: ServiceAccount
+          apiVersion: v1
+          metadata:
+            name: admin-user
+            namespace: kubernetes-dashboard
+
+    - name: Create ClusterRoleBinding
+      community.kubernetes.k8s:
+        apply: yes
+        state: present
+        kubeconfig: "{{ kubeconfig }}"
+        definition:
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: ClusterRoleBinding
+          metadata:
+            name: admin-user
+          roleRef:
+            apiGroup: rbac.authorization.k8s.io
+            kind: ClusterRole
+            name: cluster-admin
+          subjects:
+          - kind: ServiceAccount
+            name: admin-user
+            namespace: kubernetes-dashboard
+  
+  - debug:
+      msg:
+      - "1. Get the token"
+      - " kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}') "
+      - "2. Run something like `kubectl proxy -p 9090 --address=0.0.0.0` to expose the k8s api server to localhost:9090"
+      - "3. In browser, open http://localhost:9090/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/ and use the token to login"
+      - "Note: Alternatively, use Ingress instead of `kubectl proxy`"
