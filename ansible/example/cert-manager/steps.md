@@ -1,5 +1,6 @@
 Steps mainly from https://cert-manager.io/docs/installation/kubernetes/ and https://cert-manager.io/docs/tutorials/acme/ingress/
 
+# Install cert-manager with CRDs
 Since we already install ingress-nginx-controller, we only need these steps to
 install cert-manager:
 
@@ -10,9 +11,25 @@ kubectl create namespace cert-manager
 helm install \
   cert-manager jetstack/cert-manager \
   --namespace cert-manager \
-  --version v1.0.1 \
+  --version v1.1.0 \
   --set installCRDs=true
 ```
+
+To verify the installtation, run
+```
+kubectl apply -f test-resources.yaml
+```
+
+Then run `kubectl describe certificate -n cert-manager-test` should able to see the event:
+```
+  Normal  Issuing    2s    cert-manager  The certificate has been successfully issued
+```
+
+Remove the test run
+```
+kubectl delete -f test-resources.yaml
+```
+
 
 # create letsencrypt issuers
 Next step is to create two issuers for letsencrypt staging and letsencrypt production. For
@@ -26,8 +43,11 @@ kubectl create --edit -f issuer-staging.yml
 kubectl create --edit -f issuer-prod.yml
 ```
 
+Run `kubectl get issuer` should able to see those issuers.
+
 
 # Example to deploy an app
+An example of utilizing these issuers is in `../prometheus-chart/README.md`.
 
 The Ingress of an app should look like:
 ```

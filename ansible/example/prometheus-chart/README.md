@@ -1,12 +1,16 @@
-Here I use the hosted domain name `apicat.xyz`, change it to your own domain (in yaml
-files and also in the commands or descriptions below).
+# Prerequisites
+* deploy `cert-manager` as shown in `../cert-manager/steps.md`
+  - assume the cert-manager is deployed with the Issuer `letsencrypt-staging`
 
-Here assume the cert-manager is deployed with the Issuer "letsencrypt-staging" (see `../cert-manager`).
+Note that I use the hosted domain name `apicat.xyz` while deploying the cert-manager and
+in this tutorial, change it to your domain (in yaml files and also in the commands or
+descriptions below).
 
+# Prepare
 Add helm repo and update repo if not yet
 ```
-helm repo add stable https://kubernetes-charts.storage.googleapis.com
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo add kube-state-metrics https://kubernetes.github.io/kube-state-metrics
 helm repo update
 ```
 
@@ -19,6 +23,9 @@ helm install prometheus prometheus-community/prometheus -f /vagrant/ansible/exam
 For test purpose, can also use prometheus without persistent storage:
 - skip the step to create the PVC
 - turn off `persistentVolumes` in the `prometheus-values.yaml`
+
+> NOTE: this will expose prometheus.apicat.xyz to public which is not a good idea in production environment.
+> You can skip this part and use grafana (password protected) instead. Or `kubectl proxy ...`.
 
 After deploy the `ingress` resource, need go to aws route 53 console, add a record for
 `prometheus.apicat.xyz`, alias to the NLB of the ingress-nginx-controller.
